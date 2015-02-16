@@ -1,6 +1,7 @@
 ## from workinging directory containing the UCI HAR Dataset
 
 require(plyr)
+require(dplyr)
 
 
 ## read in important datasets
@@ -24,9 +25,6 @@ colnames(subject_train) = "subject"
 colnames(subject_test) = "subject"
 colnames(activity_labels) = c("label", "activity")
 
-## replace the activity index with the activity name
-y_test <- merge(activity_labels, y_test, by = "label", all.x = T, all.y = T)
-y_train <- merge(activity_labels, y_train, by = "label", all.x = T, all.y = T)
 
 ## combine data.frames
 
@@ -34,8 +32,12 @@ train <- cbind(subject_test, y_test, X_test)
 test <- cbind(subject_train, y_train, X_train)
 full <- rbind(test, train)
 
+## replace the activity index with the activity name
+full2 <- merge(activity_labels, full, by = "label", all.x = T, all.y = T)
+
 ## extracts only measurements on the mean and std (and subject and activity)
-full_mean_std <- full[,grepl("mean|std|subject|activity", names(full))]
+full_mean_std <- select(full2, contains("subject"), contains("activity"), 
+                           contains("mean"), contains("std"))
 
 ## remove the parentheses, dashes to underscores
 colnames(full_mean_std) <- gsub('\\(|\\)',"",names(full_mean_std))
